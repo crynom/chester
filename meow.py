@@ -50,6 +50,7 @@ Question:
     return resp
 
 def askStream(messages: list[dict[str, str]] | None, model: str, think: bool = False, verbose: bool = False) -> dict:
+    THINKING = True
     NAMEPLATE = '[ ฅ^•⩊•^ฅ ] > '
     response = requests.post(
         "http://localhost:11434/api/chat",
@@ -65,6 +66,7 @@ def askStream(messages: list[dict[str, str]] | None, model: str, think: bool = F
     content = []
     if verbose: print(f"\n{NAMEPLATE}", end="", flush=True)
 
+    endThoughts = False
     for line in response.iter_lines():
         if not line:
             continue
@@ -73,8 +75,10 @@ def askStream(messages: list[dict[str, str]] | None, model: str, think: bool = F
 
         if "message" in chunk:
             piece = chunk["message"]["content"]
-            if verbose: print(f'{piece}', end="", flush=True)
+            if verbose and (not THINKING or think): print(f'{piece}', end="", flush=True)
             content.append(piece)
+            if endThoughts: THINKING = False # dumb way to skip the token after thoughts (new line)
+            if '/think' in piece: endThoughts = True
 
         if chunk.get("done", False):
             break
@@ -86,11 +90,10 @@ def askStream(messages: list[dict[str, str]] | None, model: str, think: bool = F
         "content": "".join(content)
     }
 
-def chat(stream: bool = True, sysPrompt: str = SYSPROMPT['test'], model: str = MODEL, verbose: bool = True) -> None:
+def chat(stream: bool = True, sysPrompt: str = SYSPROMPT['test'], model: str = MODEL, verbose: bool = True, think: bool = False) -> None:
     # add thinking later
     prompt = input(f'\n{"*" * 10} Say "Hi"! (and "/bye" to exit) {"*" * 10}\n\n[ User ] > ')
     messages = [{'role': 'system', 'content': sysPrompt}]
-    think = False
     while True:
         if prompt.startswith('/'):
             match prompt.split()[0].strip().lower():
@@ -108,9 +111,9 @@ def chat(stream: bool = True, sysPrompt: str = SYSPROMPT['test'], model: str = M
                 'role': 'user',
                 'content': prompt
             })
-            answer = askStream(messages, think=think, model=model) if stream else ask(messages, think=think, model=model)['message']  # type: ignore
+            answer = askStream(messages, think=think, model=model, verbose=verbose) if stream else ask(messages, think=think, model=model, verbose=verbose)['message']  # type: ignore
             messages.append(answer)
         prompt = input('\n[ User ] > ')
 
 if __name__ == '__main__':
-    chat()
+    chat(think=False)
