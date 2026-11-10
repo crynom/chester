@@ -3,7 +3,7 @@ from chat.cli import chat
 
 from utils.config import MODEL, SYSPROMPT
 
-if __name__ == 'main':
+if __name__ == '__main__':
     session = ChatSession(SYSPROMPT['default'])
     chat(
         session = session,

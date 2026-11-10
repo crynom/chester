@@ -1,4 +1,5 @@
-from session import ChatSession
+from chat.session import ChatSession
+from llm.client import ask, askStream
 
 def chat(session: ChatSession, model: str, think: bool = False, stream: bool = True) -> None:
 
@@ -9,7 +10,7 @@ def chat(session: ChatSession, model: str, think: bool = False, stream: bool = T
             match prompt.split()[0].strip().lower():
                 case '/bye': break
                 case '/quit': break
-                case '/new': return chat(session, model, think stream)
+                case '/new': return chat(session, model, think, stream)
                 case '/think':
                     think = not think
                     print(f'Think mode [{"on" if think else "off"}]')
@@ -21,6 +22,6 @@ def chat(session: ChatSession, model: str, think: bool = False, stream: bool = T
                 'role': 'user',
                 'content': prompt
             })
-            answer = askStream(session.getMessages, think=think, model=model, verbose=True) if stream else ask(session.getMessages, think=think, model=model, verbose=True)['message']  # type: ignore
+            answer = askStream(session.getMessages(), think=think, model=model, verbose=True) if stream else ask(session.getMessages(), think=think, model=model, verbose=True)  # type: ignore
             session.addMessages(answer)
         prompt = input('\n[ User ] > ')
