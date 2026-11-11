@@ -7,3 +7,4 @@
 - RAG
 - Agents
 - Can he be finetuned to actually act like a cat
+- weight-space training?
