@@ -7,11 +7,11 @@ os.environ["CT2_VERBOSE"] = "-1" # warning suppression
 model = WhisperModel('small')
 SAMPLERATE = 16000
 CHUNKDURATION = .5 # seconds
-SILENCEDURATION = 2.5 # seconds
+SILENCEDURATION = 2 # seconds
 THRESHOLD = .0015
 
 
-def recordAudio(verbose: bool = False):
+def recordAudio(verbose: bool = False, stream: bool = True):
     # can make this stream but would reauire threading
     chunks = []
     silentChunks = 0
@@ -48,6 +48,9 @@ def recordAudio(verbose: bool = False):
 def transcribeAudio(audio: np.ndarray):
     segments, info = model.transcribe(audio)
     return ' '.join([seg.text for seg in segments]).replace('  ',' ').strip()
+
+
+# def listen ?
 
 if __name__ == '__main__':
 

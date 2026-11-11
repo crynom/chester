@@ -9,10 +9,10 @@ class ChatSession:
             }
         ]
 
-    def getMessages(self) -> list[dict[str, str]]:
+    def getMessage(self) -> list[dict[str, str]]:
         return self.messages
 
-    def addMessages(self, messages: dict[str, str]) -> None:
+    def addMessage(self, messages: dict[str, str]) -> None:
         self.messages.append(messages)
 
     def save(self) -> None:

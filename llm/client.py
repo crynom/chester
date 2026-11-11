@@ -43,7 +43,6 @@ Question:
     return resp
 
 def askStream(messages: list[dict[str, str]] | None, model: str, think: bool = False, verbose: bool = False) -> dict:
-    THINKING = True
     NAMEPLATE = '[ ฅ^•⩊•^ฅ ] > '
     response = requests.post(
         "http://localhost:11434/api/chat",
@@ -59,7 +58,6 @@ def askStream(messages: list[dict[str, str]] | None, model: str, think: bool = F
     content = []
     if verbose: print(f"\n{NAMEPLATE}", end="", flush=True)
 
-    endThoughts = False
     for line in response.iter_lines():
         if not line:
             continue
@@ -68,10 +66,8 @@ def askStream(messages: list[dict[str, str]] | None, model: str, think: bool = F
 
         if "message" in chunk:
             piece = chunk["message"]["content"]
-            if verbose and (not THINKING or think): print(f'{piece}', end="", flush=True)
+            if verbose: print(f'{piece}', end="", flush=True)
             content.append(piece)
-            if endThoughts: THINKING = False # dumb way to skip the token after thoughts (new line)
-            if '/think' in piece: endThoughts = True
 
         if chunk.get("done", False):
             break
